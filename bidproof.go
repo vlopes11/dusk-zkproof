@@ -66,6 +66,10 @@ func Prove(d, k, seed ristretto.Scalar, bidList []ristretto.Scalar) ZkProof {
 	bw.VarWrite(bL)
 	bw.Write(uint8(i))
 
+	// We lock the pipe here, to prevent other goroutines from writing to
+	// or reading from the pipe while we wait for a response.
+	pipe.mutex.Lock()
+
 	// write to pipe
 	if err := bufferedPipeWriter.Flush(); err != nil {
 		panic(err)
@@ -77,6 +81,7 @@ func Prove(d, k, seed ristretto.Scalar, bidList []ristretto.Scalar) ZkProof {
 		panic(err)
 	}
 
+	pipe.mutex.Unlock()
 	return ZkProof{
 		Proof:         bytes,
 		Score:         q.Bytes(),
@@ -99,6 +104,8 @@ func (proof *ZkProof) Verify(seed ristretto.Scalar) bool {
 	bw.VarWrite(proof.Score)
 	bw.VarWrite(proof.Z)
 
+	pipe.mutex.Lock()
+
 	// write to pipeline
 	if err := bufferedPipeWriter.Flush(); err != nil {
 		panic(err)
@@ -109,6 +116,7 @@ func (proof *ZkProof) Verify(seed ristretto.Scalar) bool {
 		panic(err)
 	}
 
+	pipe.mutex.Unlock()
 	return bytes[0] == 1
 }
 
