@@ -10,9 +10,9 @@ import (
 
 // NamedPipe holds data for a named pipe.
 type NamedPipe struct {
-	path  string
-	mutex *sync.Mutex
-	buf   *bytes.Buffer
+	path string
+	*sync.Mutex
+	buf *bytes.Buffer
 }
 
 // NewNamedPipe returns a NamedPipe on the path given.
