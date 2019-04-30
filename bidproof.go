@@ -39,6 +39,9 @@ var pipe = NewNamedPipe(tempFilePath("pipe-channel"))
 // Prove creates a zkproof using `d`, `k`, `seed` and `pubList`, and returns
 // a ZkProof data type.
 func Prove(d, k, seed ristretto.Scalar, bidList []ristretto.Scalar) ZkProof {
+	pipe.Lock()
+	defer pipe.Unlock()
+
 	// generate intermediate values
 	q, x, y, yInv, z := prog(d, k, seed)
 
@@ -68,7 +71,6 @@ func Prove(d, k, seed ristretto.Scalar, bidList []ristretto.Scalar) ZkProof {
 
 	// We lock the pipe here, to prevent other goroutines from writing to
 	// or reading from the pipe while we wait for a response.
-	pipe.mutex.Lock()
 
 	// write to pipe
 	if err := bufferedPipeWriter.Flush(); err != nil {
@@ -81,7 +83,6 @@ func Prove(d, k, seed ristretto.Scalar, bidList []ristretto.Scalar) ZkProof {
 		panic(err)
 	}
 
-	pipe.mutex.Unlock()
 	return ZkProof{
 		Proof:         bytes,
 		Score:         q.Bytes(),
@@ -93,6 +94,9 @@ func Prove(d, k, seed ristretto.Scalar, bidList []ristretto.Scalar) ZkProof {
 // Verify a ZkProof using the provided seed.
 // Returns `true` or `false` depending on whether it is successful.
 func (proof *ZkProof) Verify(seed ristretto.Scalar) bool {
+	pipe.Lock()
+	defer pipe.Unlock()
+
 	bufferedPipeWriter := bufio.NewWriter(&pipe)
 	bw := NewBinWriter(bufferedPipeWriter)
 	// set opcode
@@ -104,8 +108,6 @@ func (proof *ZkProof) Verify(seed ristretto.Scalar) bool {
 	bw.VarWrite(proof.Score)
 	bw.VarWrite(proof.Z)
 
-	pipe.mutex.Lock()
-
 	// write to pipeline
 	if err := bufferedPipeWriter.Flush(); err != nil {
 		panic(err)
@@ -116,7 +118,6 @@ func (proof *ZkProof) Verify(seed ristretto.Scalar) bool {
 		panic(err)
 	}
 
-	pipe.mutex.Unlock()
 	return bytes[0] == 1
 }
 
