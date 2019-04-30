@@ -38,7 +38,13 @@ var pipe = NewNamedPipe(tempFilePath("pipe-channel"))
 
 // Prove creates a zkproof using `d`, `k`, `seed` and `pubList`, and returns
 // a ZkProof data type.
+//
+// This operation locks the `NamedPipe`. The calling
+// goroutine blocks until the function's end, preventing
+// other goroutines from writing or reading from the pipe.
 func Prove(d, k, seed ristretto.Scalar, bidList []ristretto.Scalar) ZkProof {
+	// We lock the pipe here, to prevent other goroutines from writing to
+	// or reading from the pipe while we wait for a response.
 	pipe.Lock()
 	defer pipe.Unlock()
 
@@ -69,9 +75,6 @@ func Prove(d, k, seed ristretto.Scalar, bidList []ristretto.Scalar) ZkProof {
 	bw.VarWrite(bL)
 	bw.Write(uint8(i))
 
-	// We lock the pipe here, to prevent other goroutines from writing to
-	// or reading from the pipe while we wait for a response.
-
 	// write to pipe
 	if err := bufferedPipeWriter.Flush(); err != nil {
 		panic(err)
@@ -93,6 +96,10 @@ func Prove(d, k, seed ristretto.Scalar, bidList []ristretto.Scalar) ZkProof {
 
 // Verify a ZkProof using the provided seed.
 // Returns `true` or `false` depending on whether it is successful.
+//
+// This operation locks the `NamedPipe`. The calling
+// goroutine blocks until the function's end, preventing
+// other goroutines from writing or reading from the pipe.
 func (proof *ZkProof) Verify(seed ristretto.Scalar) bool {
 	pipe.Lock()
 	defer pipe.Unlock()
