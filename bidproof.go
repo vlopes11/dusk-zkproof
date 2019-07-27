@@ -5,7 +5,7 @@
 // process.
 //
 // A concrete implementation of the Blind Bid can be found here:
-// https://gitlab.dusk.network/dusk-core/blindbidproof
+// https://github.com/dusk-network/dusk-blindbidproof
 package zkproof
 
 import (
