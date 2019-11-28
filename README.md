@@ -1,7 +1,7 @@
 
 
 # zkproof
-`import "github.com/dusk-network/dusk-zkproof"`
+`import "gitlab.dusk.network/dusk-core/zkproof"`
 
 * [Overview](#pkg-overview)
 * [Index](#pkg-index)
@@ -14,7 +14,7 @@ Under the hood is using named pipes for a fast IPC with the Blind Bid
 process.
 
 A concrete implementation of the Blind Bid can be found here:
-<a href="https://github.com/dusk-network/dusk-blindbidproof">https://github.com/dusk-network/dusk-blindbidproof</a>
+<a href="https://gitlab.dusk.network/dusk-core/blindbidproof">https://gitlab.dusk.network/dusk-core/blindbidproof</a>
 
 
 
