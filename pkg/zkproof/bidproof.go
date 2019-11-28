@@ -1,12 +1,9 @@
 // Package zkproof contains the Go APIs to generate and verify
 // a zero-knownledge prove for the Dusk's Blind Bid.
 //
-// Under the hood is using named pipes for a fast IPC with the Blind Bid
+// Under the hood is using unix domain sockets for a fast IPC with the Blind Bid
 // process.
-//
-// A concrete implementation of the Blind Bid can be found here:
-// https://gitlab.dusk.network/dusk-core/blindbidproof
-package blindbidproof
+package zkproof
 
 import (
 	"bytes"

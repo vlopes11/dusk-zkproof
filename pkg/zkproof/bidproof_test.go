@@ -1,4 +1,4 @@
-package blindbidproof
+package zkproof
 
 import (
 	"sync"
